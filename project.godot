@@ -15,6 +15,11 @@ run/main_scene="res://addons/block_code/examples/pong_game/pong_game.tscn"
 config/features=PackedStringArray("4.3", "GL Compatibility")
 config/icon="res://icon.svg"
 
+[display]
+
+window/size/viewport_width=1400
+window/size/viewport_height=800
+
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/block_code/plugin.cfg", "res://addons/gut/plugin.cfg", "res://addons/plugin_refresher/plugin.cfg")

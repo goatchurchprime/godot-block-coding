@@ -20,8 +20,8 @@ func _get_custom_or_native_class(node: Node):
 
 
 func _enter_tree():
-	if not Engine.is_editor_hint():
-		return
+	#if not Engine.is_editor_hint():
+	#	return
 
 	# Create script
 	if block_script == null:

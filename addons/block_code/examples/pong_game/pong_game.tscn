@@ -384,36 +384,36 @@ func reset():
 "
 version = 0
 
-[sub_resource type="Resource" id="Resource_tsyvf"]
+[sub_resource type="Resource" id="Resource_x6e34"]
 script = ExtResource("11_yafka")
 name = &"area2d_on_entered:something"
 arguments = {}
 
-[sub_resource type="Resource" id="Resource_xwsub"]
+[sub_resource type="Resource" id="Resource_aabyg"]
 script = ExtResource("11_yafka")
 name = &"is_node_in_group"
 arguments = {
 "group": "balls",
-"node": SubResource("Resource_tsyvf")
+"node": SubResource("Resource_x6e34")
 }
 
-[sub_resource type="Resource" id="Resource_wwa40"]
+[sub_resource type="Resource" id="Resource_xia83"]
 script = ExtResource("11_yafka")
 name = &"get_node"
 arguments = {
 "path": NodePath("../CanvasLayer/PlayerScoreRight")
 }
 
-[sub_resource type="Resource" id="Resource_qqoih"]
+[sub_resource type="Resource" id="Resource_55aoy"]
 script = ExtResource("4_qtggh")
 name = &"call_method_node"
 children = Array[ExtResource("4_qtggh")]([])
 arguments = {
 "method_name": "goal",
-"node": SubResource("Resource_wwa40")
+"node": SubResource("Resource_xia83")
 }
 
-[sub_resource type="Resource" id="Resource_ppkia"]
+[sub_resource type="Resource" id="Resource_hxgn0"]
 script = ExtResource("4_qtggh")
 name = &"call_method_group"
 children = Array[ExtResource("4_qtggh")]([])
@@ -422,29 +422,29 @@ arguments = {
 "method_name": "reset"
 }
 
-[sub_resource type="Resource" id="Resource_8nml3"]
+[sub_resource type="Resource" id="Resource_lvybk"]
 script = ExtResource("4_qtggh")
 name = &"if"
-children = Array[ExtResource("4_qtggh")]([SubResource("Resource_qqoih"), SubResource("Resource_ppkia")])
+children = Array[ExtResource("4_qtggh")]([SubResource("Resource_55aoy"), SubResource("Resource_hxgn0")])
 arguments = {
-"condition": SubResource("Resource_xwsub")
+"condition": SubResource("Resource_aabyg")
 }
 
-[sub_resource type="Resource" id="Resource_dwnid"]
+[sub_resource type="Resource" id="Resource_mb7jh"]
 script = ExtResource("4_qtggh")
 name = &"area2d_on_entered"
-children = Array[ExtResource("4_qtggh")]([SubResource("Resource_8nml3")])
+children = Array[ExtResource("4_qtggh")]([SubResource("Resource_lvybk")])
 arguments = {}
 
-[sub_resource type="Resource" id="Resource_lxv8m"]
+[sub_resource type="Resource" id="Resource_wjdt4"]
 script = ExtResource("5_omlge")
-root = SubResource("Resource_dwnid")
-canvas_position = Vector2(0, 25)
+root = SubResource("Resource_mb7jh")
+canvas_position = Vector2(125, 125)
 
 [sub_resource type="Resource" id="Resource_4xylj"]
 script = ExtResource("7_uuuue")
 script_inherits = "Area2D"
-block_serialization_trees = Array[ExtResource("5_omlge")]([SubResource("Resource_lxv8m")])
+block_serialization_trees = Array[ExtResource("5_omlge")]([SubResource("Resource_wjdt4")])
 variables = Array[ExtResource("9_lo3p1")]([])
 generated_script = "extends Area2D
 

@@ -1,0 +1,158 @@
+[gd_scene load_steps=25 format=3 uid="uid://cblja2nsbms5g"]
+
+[ext_resource type="Script" path="res://addons/block_code/block_code_node/block_code.gd" id="1_5w62m"]
+[ext_resource type="Script" path="res://jgt/node_2d.gd" id="1_450yk"]
+[ext_resource type="Script" path="res://addons/block_code/serialization/block_serialization_tree.gd" id="2_q8k2f"]
+[ext_resource type="Script" path="res://addons/block_code/serialization/block_serialization.gd" id="3_22177"]
+[ext_resource type="Script" path="res://addons/block_code/serialization/value_block_serialization.gd" id="4_o5baf"]
+[ext_resource type="Script" path="res://addons/block_code/serialization/block_script_serialization.gd" id="4_r17hu"]
+[ext_resource type="Script" path="res://addons/block_code/code_generation/variable_definition.gd" id="5_foosn"]
+[ext_resource type="PackedScene" uid="uid://bq37yla8ya707" path="res://addons/block_code/ui/main_panel.tscn" id="6_7y4h7"]
+
+[sub_resource type="Resource" id="Resource_y6odo"]
+script = ExtResource("3_22177")
+name = &"Node2D_set_rotation_degrees"
+children = Array[ExtResource("3_22177")]([])
+arguments = {
+"value": 0.0
+}
+
+[sub_resource type="Resource" id="Resource_hssof"]
+script = ExtResource("3_22177")
+name = &"Node2D_set_position"
+children = Array[ExtResource("3_22177")]([])
+arguments = {
+"value": Vector2(100, 100)
+}
+
+[sub_resource type="Resource" id="Resource_sk5lq"]
+script = ExtResource("3_22177")
+name = &"set_var_bbb"
+children = Array[ExtResource("3_22177")]([])
+arguments = {
+"value": 0.0
+}
+
+[sub_resource type="Resource" id="Resource_5o5oh"]
+script = ExtResource("3_22177")
+name = &"ready"
+children = Array[ExtResource("3_22177")]([SubResource("Resource_y6odo"), SubResource("Resource_hssof"), SubResource("Resource_sk5lq")])
+arguments = {}
+
+[sub_resource type="Resource" id="Resource_pbmed"]
+script = ExtResource("2_q8k2f")
+root = SubResource("Resource_5o5oh")
+canvas_position = Vector2(775, 100)
+
+[sub_resource type="Resource" id="Resource_3flny"]
+script = ExtResource("4_o5baf")
+name = &"get_var_bbb"
+arguments = {}
+
+[sub_resource type="Resource" id="Resource_oebqb"]
+script = ExtResource("4_o5baf")
+name = &"compare"
+arguments = {
+"float1": SubResource("Resource_3flny"),
+"float2": 360.0,
+"op": "<"
+}
+
+[sub_resource type="Resource" id="Resource_rl431"]
+script = ExtResource("4_o5baf")
+name = &"get_var_bbb"
+arguments = {}
+
+[sub_resource type="Resource" id="Resource_a5vxk"]
+script = ExtResource("4_o5baf")
+name = &"add"
+arguments = {
+"a": SubResource("Resource_rl431"),
+"b": 1.0
+}
+
+[sub_resource type="Resource" id="Resource_0gk1s"]
+script = ExtResource("3_22177")
+name = &"set_var_bbb"
+children = Array[ExtResource("3_22177")]([])
+arguments = {
+"value": SubResource("Resource_a5vxk")
+}
+
+[sub_resource type="Resource" id="Resource_x4b3v"]
+script = ExtResource("3_22177")
+name = &"if"
+children = Array[ExtResource("3_22177")]([SubResource("Resource_0gk1s")])
+arguments = {
+"condition": SubResource("Resource_oebqb")
+}
+
+[sub_resource type="Resource" id="Resource_ni3qg"]
+script = ExtResource("3_22177")
+name = &"process"
+children = Array[ExtResource("3_22177")]([SubResource("Resource_x4b3v")])
+arguments = {}
+
+[sub_resource type="Resource" id="Resource_gdk3d"]
+script = ExtResource("2_q8k2f")
+root = SubResource("Resource_ni3qg")
+canvas_position = Vector2(1175, 175)
+
+[sub_resource type="Resource" id="Resource_7irwl"]
+script = ExtResource("5_foosn")
+var_name = "aaa"
+var_type = 4
+
+[sub_resource type="Resource" id="Resource_robns"]
+script = ExtResource("5_foosn")
+var_name = "bbb"
+var_type = 3
+
+[sub_resource type="Resource" id="Resource_musun"]
+script = ExtResource("4_r17hu")
+script_inherits = "Node2D"
+block_serialization_trees = Array[ExtResource("2_q8k2f")]([SubResource("Resource_pbmed"), SubResource("Resource_gdk3d")])
+variables = Array[ExtResource("5_foosn")]([SubResource("Resource_7irwl"), SubResource("Resource_robns")])
+generated_script = "extends Node2D
+
+var aaa: String
+
+var bbb: float
+
+
+func _ready():
+	rotation_degrees = 0
+	position = Vector2(100, 100)
+	bbb = 0
+
+func _process(delta):
+	if ((bbb) < 360):
+		bbb = ((bbb) + 1)
+
+"
+version = 0
+
+[node name="Node2D" type="Node2D"]
+
+[node name="BlockCode" type="Node" parent="."]
+script = ExtResource("1_5w62m")
+block_script = SubResource("Resource_musun")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+offset_right = 40.0
+offset_bottom = 40.0
+color = Color(1, 0.380392, 1, 1)
+
+[node name="MainPanel" parent="." instance=ExtResource("6_7y4h7")]
+anchors_preset = 0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 32.0
+offset_top = 54.0
+offset_right = 1154.0
+offset_bottom = 614.0
+grow_horizontal = 1
+grow_vertical = 1
+
+[node name="CNode2D" type="Node2D" parent="."]
+script = ExtResource("1_450yk")

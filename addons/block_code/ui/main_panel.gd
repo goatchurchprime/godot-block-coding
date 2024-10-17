@@ -18,13 +18,13 @@ const VariableDefinition = preload("res://addons/block_code/code_generation/vari
 @onready var _drag_manager: DragManager = %DragManager
 @onready var _title_bar: TitleBar = %TitleBar
 @onready var _delete_node_button: Button = %DeleteNodeButton
-@onready var _editor_inspector: EditorInspector = EditorInterface.get_inspector()
+@onready var _editor_inspector: EditorInspector = EditorInterface.get_inspector() if Engine.is_editor_hint() else null
 @onready var _picker_split: HSplitContainer = %PickerSplit
 @onready var _collapse_button: Button = %CollapseButton
 
-@onready var _icon_delete := EditorInterface.get_editor_theme().get_icon("Remove", "EditorIcons")
-@onready var _icon_collapse := EditorInterface.get_editor_theme().get_icon("Back", "EditorIcons")
-@onready var _icon_expand := EditorInterface.get_editor_theme().get_icon("Forward", "EditorIcons")
+@onready var _icon_delete := EditorInterface.get_editor_theme().get_icon("Remove", "EditorIcons") if Engine.is_editor_hint() else null
+@onready var _icon_collapse := EditorInterface.get_editor_theme().get_icon("Back", "EditorIcons") if Engine.is_editor_hint() else null
+@onready var _icon_expand := EditorInterface.get_editor_theme().get_icon("Forward", "EditorIcons") if Engine.is_editor_hint() else null
 
 const Constants = preload("res://addons/block_code/ui/constants.gd")
 
@@ -81,19 +81,21 @@ func _on_delete_node_button_pressed():
 	dialog.connect("confirmed", _on_delete_dialog_confirmed.bind(_context.block_code_node))
 
 
+
+
 func _on_delete_dialog_confirmed(block_code_node: BlockCode):
 	var parent_node = block_code_node.get_parent()
 
 	if not parent_node:
 		return
 
-	undo_redo.create_action("Delete %s's block code script" % parent_node.name, UndoRedo.MERGE_DISABLE, parent_node)
-	undo_redo.add_do_property(block_code_node, "owner", null)
-	undo_redo.add_do_method(parent_node, "remove_child", block_code_node)
-	undo_redo.add_undo_method(parent_node, "add_child", block_code_node)
-	undo_redo.add_undo_property(block_code_node, "owner", block_code_node.owner)
-	undo_redo.add_undo_reference(block_code_node)
-	undo_redo.commit_action()
+	if undo_redo: undo_redo.create_action("Delete %s's block code script" % parent_node.name, UndoRedo.MERGE_DISABLE, parent_node)
+	if undo_redo: undo_redo.add_do_property(block_code_node, "owner", null)
+	if undo_redo: undo_redo.add_do_method(parent_node, "remove_child", block_code_node)
+	if undo_redo: undo_redo.add_undo_method(parent_node, "add_child", block_code_node)
+	if undo_redo: undo_redo.add_undo_property(block_code_node, "owner", block_code_node.owner)
+	if undo_redo: undo_redo.add_undo_reference(block_code_node)
+	if undo_redo: undo_redo.commit_action()
 
 
 func _try_migration():
@@ -130,7 +132,7 @@ func save_script():
 		print("No script loaded to save.")
 		return
 
-	var scene_node = EditorInterface.get_edited_scene_root()
+	var scene_node = EditorInterface.get_edited_scene_root() if Engine.is_editor_hint() else null
 
 	if not BlockCodePlugin.is_block_code_editable(_context.block_code_node):
 		print("Block code for {node} is not editable.".format({"node": _context.block_code_node}))
@@ -141,29 +143,29 @@ func save_script():
 	var resource_path_split = block_script.resource_path.split("::", true, 1)
 	var resource_scene = resource_path_split[0]
 
-	undo_redo.create_action("Modify %s's block code script" % _context.parent_node.name, UndoRedo.MERGE_DISABLE, _context.block_code_node)
+	if undo_redo: undo_redo.create_action("Modify %s's block code script" % _context.parent_node.name, UndoRedo.MERGE_DISABLE, _context.block_code_node)
 
-	if resource_scene and resource_scene != scene_node.scene_file_path:
+	if resource_scene and scene_node and resource_scene != scene_node.scene_file_path:
 		# This resource is from another scene. Since the user is changing it
 		# here, we'll make a copy for this scene rather than changing it in the
 		# other scene file.
-		undo_redo.add_undo_property(_context.block_code_node, "block_script", _context.block_script)
+		if undo_redo: undo_redo.add_undo_property(_context.block_code_node, "block_script", _context.block_script)
 		block_script = block_script.duplicate(true)
-		undo_redo.add_do_property(_context.block_code_node, "block_script", block_script)
+		if undo_redo: undo_redo.add_do_property(_context.block_code_node, "block_script", block_script)
 
-	undo_redo.add_undo_property(block_script, "block_serialization_trees", block_script.block_serialization_trees)
+	if undo_redo: undo_redo.add_undo_property(block_script, "block_serialization_trees", block_script.block_serialization_trees)
 	_block_canvas.rebuild_ast_list()
 	_block_canvas.rebuild_block_serialization_trees()
-	undo_redo.add_do_property(block_script, "block_serialization_trees", block_script.block_serialization_trees)
+	if undo_redo: undo_redo.add_do_property(block_script, "block_serialization_trees", block_script.block_serialization_trees)
 
 	var generated_script = _block_canvas.generate_script_from_current_window()
 	if generated_script != block_script.generated_script:
-		undo_redo.add_undo_property(block_script, "generated_script", block_script.generated_script)
-		undo_redo.add_do_property(block_script, "generated_script", generated_script)
+		if undo_redo: undo_redo.add_undo_property(block_script, "generated_script", block_script.generated_script)
+		if undo_redo: undo_redo.add_do_property(block_script, "generated_script", generated_script)
 
 	block_script.version = Constants.CURRENT_DATA_VERSION
 
-	undo_redo.commit_action()
+	if undo_redo: undo_redo.commit_action()
 
 
 func _input(event):
@@ -213,17 +215,17 @@ func _on_block_canvas_add_block_code():
 	var block_code = BlockCode.new()
 	block_code.name = "BlockCode"
 
-	undo_redo.create_action("Add block code for %s" % edited_node.name, UndoRedo.MERGE_DISABLE, edited_node)
+	if undo_redo: undo_redo.create_action("Add block code for %s" % edited_node.name, UndoRedo.MERGE_DISABLE, edited_node)
 
-	undo_redo.add_do_method(edited_node, "add_child", block_code, true)
-	undo_redo.add_do_method(self, "_select_node", block_code)
-	undo_redo.add_do_property(block_code, "owner", scene_root)
-	undo_redo.add_do_property(_context, "block_code_node", block_code)
-	undo_redo.add_do_reference(block_code)
-	undo_redo.add_undo_method(edited_node, "remove_child", block_code)
-	undo_redo.add_undo_property(block_code, "owner", null)
+	if undo_redo: undo_redo.add_do_method(edited_node, "add_child", block_code, true)
+	if undo_redo: undo_redo.add_do_method(self, "_select_node", block_code)
+	if undo_redo: undo_redo.add_do_property(block_code, "owner", scene_root)
+	if undo_redo: undo_redo.add_do_property(_context, "block_code_node", block_code)
+	if undo_redo: undo_redo.add_do_reference(block_code)
+	if undo_redo: undo_redo.add_undo_method(edited_node, "remove_child", block_code)
+	if undo_redo: undo_redo.add_undo_property(block_code, "owner", null)
 
-	undo_redo.commit_action()
+	if undo_redo: undo_redo.commit_action()
 
 
 func _select_node(node: Node):
@@ -244,17 +246,17 @@ func _on_block_canvas_replace_block_code():
 	var edited_node: Node = EditorInterface.get_inspector().get_edited_object() as Node
 	var scene_root: Node = EditorInterface.get_edited_scene_root()
 
-	undo_redo.create_action("Replace block code %s" % edited_node.name, UndoRedo.MERGE_DISABLE, scene_root)
+	if undo_redo: undo_redo.create_action("Replace block code %s" % edited_node.name, UndoRedo.MERGE_DISABLE, scene_root)
 
 	# FIXME: When this is undone, the new state is not correctly shown in the
 	#        editor due to an issue in Godot:
 	#        <https://github.com/godotengine/godot/issues/45915>
 	#        Ideally this should fix itself in a future version of Godot.
 
-	undo_redo.add_do_method(scene_root, "set_editable_instance", edited_node, true)
-	undo_redo.add_undo_method(scene_root, "set_editable_instance", edited_node, false)
+	if undo_redo: undo_redo.add_do_method(scene_root, "set_editable_instance", edited_node, true)
+	if undo_redo: undo_redo.add_undo_method(scene_root, "set_editable_instance", edited_node, false)
 
-	undo_redo.commit_action()
+	if undo_redo: undo_redo.commit_action()
 
 
 func _create_variable(variable: VariableDefinition):
@@ -264,13 +266,18 @@ func _create_variable(variable: VariableDefinition):
 
 	var block_script: BlockScriptSerialization = _context.block_script
 
-	undo_redo.create_action("Create variable %s in %s's block code script" % [variable.var_name, _context.parent_node.name])
-	undo_redo.add_undo_property(_context.block_script, "variables", _context.block_script.variables)
+	if undo_redo: 
+		undo_redo.create_action("Create variable %s in %s's block code script" % [variable.var_name, _context.parent_node.name])
+		undo_redo.add_undo_property(_context.block_script, "variables", _context.block_script.variables)
 
-	var new_variables = block_script.variables.duplicate()
-	new_variables.append(variable)
+		var new_variables = block_script.variables.duplicate()
+		new_variables.append(variable)
 
-	undo_redo.add_do_property(_context.block_script, "variables", new_variables)
-	undo_redo.commit_action()
+		undo_redo.add_do_property(_context.block_script, "variables", new_variables)
+		undo_redo.commit_action()
+	else:
+		var new_variables = block_script.variables.duplicate()
+		new_variables.append(variable)
+		block_script.variables = new_variables
 
 	_picker.reload_blocks()

@@ -133,7 +133,13 @@ func set_child(n: Node):
 func _on_context_changed():
 	clear_canvas()
 
-	var edited_node = EditorInterface.get_inspector().get_edited_object() as Node
+	var edited_node = null
+	if Engine.is_editor_hint():
+		edited_node = EditorInterface.get_inspector().get_edited_object() as Node
+	else:
+		var x = find_parent("MainPanel")
+		print(x.get_path())
+		edited_node = x.get_node("../BlockCode")
 
 	if _context.block_script != _current_block_script:
 		_window.position = Vector2(0, 0)
